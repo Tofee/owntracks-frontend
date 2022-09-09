@@ -64,7 +64,17 @@ const filteredLocationHistoryLatLngGroups = (state) => {
   Object.keys(locationHistory).forEach((user) => {
     Object.keys(locationHistory[user]).forEach((device) => {
       let latLngs = [];
+      let lastEpochDay = 0;
       locationHistory[user][device].forEach((location) => {
+        const currentEpochDay = Math.floor(location.tst / (24 * 60 * 60));
+        if (lastEpochDay > 0 && currentEpochDay !== lastEpochDay) {
+          // Beginning new day, start new group of coordinate
+          groups.push(latLngs);
+          latLngs = [];
+
+          lastEpochDay = currentEpochDay;
+        }
+
         const latLng = L.latLng(location.lat, location.lon);
         // Skip if group splitting is disabled or this is the first
         // coordinate in the current group
